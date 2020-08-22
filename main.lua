@@ -63,6 +63,8 @@ function addonMain:OnLoad(self)
     GameUtilityAddonFrame:SetScript("OnDragStart", GameUtilityAddonFrame.StartMoving)
     GameUtilityAddonFrame:SetScript("OnDragStop", GameUtilityAddonFrame.StopMovingOrSizing)
     GameUtilityAddonFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    GameUtilityAddonFrame:RegisterEvent("UPDATE_FACTION")
+    GameUtilityAddonFrame:RegisterEvent("LFG_BONUS_FACTION_ID_UPDATED")
     --GameUtilityAddonFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     --GameUtilityAddonFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
     --GameUtilityAddonFrame.TimeSinceLastUpdate = 0
@@ -83,11 +85,7 @@ function addonMain:OnLoad(self)
 
         end
     end
-    -- Look for event to update faction screen, save state in SavedVariable, iterate faction screen using GetFactionInfo, render rep bars using GetFactionInfoByID.
-    local itemCheckBox = CreateFrame("CheckButton", "itemCheckBox", ReputationBar10, "ChatConfigCheckButtonTemplate")
-    itemCheckBox:SetSize(20, 20)
-    itemCheckBox:SetPoint("LEFT", -15, 0)
-    itemCheckBox:SetChecked(true)
+
 
     TempTestButton1 = CreateFrame("Button", "TempTestButton1", GameUtilityAddonFrame, "UIPanelButtonTemplate")
     TempTestButton1.contentText = TempTestButton1:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
@@ -109,6 +107,17 @@ function addonMain:OnLoad(self)
     OptionsHeader:SetWidth(OptionsPanel:GetWidth())
     OptionsHeader:SetHeight(OptionsPanel:GetHeight())
     OptionsHeader:SetPoint("TOP", 0, -10)
+    
+    local defaultScrollBehaviour = ReputationListScrollFrame:GetScript("OnVerticalScroll")
+    ReputationListScrollFrame:SetScript("OnVerticalScroll", function(...)
+        defaultScrollBehaviour(...)
+        addonMain:updateFactionCheckboxes()
+    end)
+    local defaultFrameShowBehaviour = ReputationFrame:GetScript("OnShow")
+    ReputationFrame:SetScript("OnShow", function(...)
+        defaultFrameShowBehaviour(...)
+        addonMain:updateFactionCheckboxes() 
+    end)
 end
 
 function addonMain:initializeConfig()
@@ -120,8 +129,38 @@ function addonMain:OnEvent(self, event, ...)
         GameUtilityAddonFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         addonMain:initializeConfig()
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-
+    elseif event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
+        addonMain:updateFactionCheckboxes()
     end
+end
+
+function addonMain:updateFactionCheckboxes()
+    for i=1,15 do
+        local factionBarFrame = _G["ReputationBar" .. i]
+        if factionBarFrame["index"] == nil then
+            return
+        elseif factionBarFrame.itemCheckBox == nil then
+            factionBarFrame.itemCheckBox = CreateFrame("CheckButton", nil, factionBarFrame, "ChatConfigCheckButtonTemplate")
+            factionBarFrame.itemCheckBox:SetSize(20, 20)
+            factionBarFrame.itemCheckBox:SetPoint("LEFT", -15, 0)
+            factionBarFrame.itemCheckBox:SetChecked(true)
+            factionBarFrame.itemCheckBox:SetScript("OnClick", function(sender) print("hey!" .. sender:GetParent().index) end)
+        end
+
+        local faction, min, max, value, isHeader, factioId = addonMain:getUsefulFactionInfo(factionBarFrame["index"])
+        if isHeader then
+            factionBarFrame.itemCheckBox:Hide()
+        else
+            factionBarFrame.itemCheckBox:Show()
+        end
+    end
+    -- Look for event to update faction screen, save state in SavedVariable, iterate faction screen using GetFactionInfo, render rep bars using GetFactionInfoByID.
+    
+end
+
+function addonMain:getUsefulFactionInfo(index)
+    local faction, _, _, min, max, value, _, _, isHeader, _, _, _, _, factionId = GetFactionInfo(index)
+    return faction, min, max, value, isHeader, factionId
 end
 
 function addonMain:testButtonClicked()
