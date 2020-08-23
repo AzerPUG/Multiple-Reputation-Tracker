@@ -6,4 +6,5 @@
 ## Version: BFA 8.3.7 (For actual addon version, check main.lua)
 ## SavedVariablesPerCharacter: AGUCheckedData
 
+dataTables.lua
 main.lua

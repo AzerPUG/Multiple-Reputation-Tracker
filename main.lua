@@ -10,6 +10,8 @@ local name = "GameUtility" .. dash .. "RepBaws"
 local nameFull = ("AzerPUG " .. name)
 local promo = (nameFull .. dash ..  addonVersion)
 
+local addonLoaded = false
+
 local addonMain = LibStub("AceAddon-3.0"):NewAddon("GameUtility-RepBars", "AceConsole-3.0")
 
 -- function addonMain:MiniMapIconToggle()
@@ -21,36 +23,78 @@ local addonMain = LibStub("AceAddon-3.0"):NewAddon("GameUtility-RepBars", "AceCo
 -- 	end
 -- end
 
-function addonMain:CreateFactionBar(min, max, current)
-    local factionBarFrame = CreateFrame("Frame", nil, GameUtilityAddonFrame) --With the name / header / title
+function addonMain:CreateFactionBar(standingID, min, max, current, name, factionID)
+
+    --  TODO: Add Paragon Reputation Stuff: https://wow.gamepedia.com/API_C_Reputation.GetFactionParagonInfo
+    --  If Paragonrep: Change StandinID to 9, Change min/max to other numbers.
+
+    if standingID == 8 then
+        local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(factionID)
+        if currentValue ~= nil and threshold ~= nil then
+            current = (currentValue % 10000)
+            max = 10000
+            min = 0
+            standingID = 9
+        end
+    end
+
+    local factionBarFrame = CreateFrame("Frame", nil, GameUtilityProgressFrame) --With the name / header / title
     local factionBar = CreateFrame("StatusBar", nil, factionBarFrame)
-    factionBarFrame:SetSize(100, 40)
+    factionBarFrame:SetSize(300, 25)
     factionBarFrame:SetPoint("TOPLEFT", 50, -50)
-    factionBar:SetSize(100, 20)
+    factionBarFrame.contentText = factionBarFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    factionBarFrame.contentText:SetText(name)
+    factionBarFrame.contentText:SetPoint("LEFT")
+    factionBarFrame.contentText:SetSize(150, 20)
+    factionBarFrame.contentText:SetJustifyH("LEFT")
+    factionBar:SetSize(150, 20)
     factionBar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
+    if min == max then min = 0 end
     factionBar:SetMinMaxValues(min, max)
     factionBar:SetValue(current)
-    factionBar:SetPoint("LEFT")
-    factionBar:SetStatusBarColor(0, 1, 0)
+    factionBar:SetPoint("RIGHT")
     factionBar.bg = factionBar:CreateTexture(nil, "BACKGROUND")
     factionBar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
     factionBar.bg:SetAllPoints(true)
-    factionBar.bg:SetVertexColor(1, 0, 0)
-    print("Het lieve schatje!!! <3 ik hou van you!")
-    -- local factionProgressBar = CreateFrame("Frame", nil, factionBar)
-    -- factionProgressBar:SetSize(20, 100)
+    factionBar.bg:SetVertexColor(0, 0, 0)
+    factionBar.contentText = factionBar:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    factionBar.contentText:SetPoint("CENTER")
+    factionBar.contentText:SetSize(150, 20)
 
-    -- local factionProgressFiller = CreateFrame('Frame', nil, factionProgressBar)
-
-    -- local a = current - min
-    -- local b = max - min
-    -- factionProgressFiller:SetPoint("LEFT", factionProgressBar, "LEFT", 0 ,0)
-    -- factionProgressFiller:SetSize(20, a / b * 100)
+    if standingID == 1 then                             -- Hated
+        factionBar:SetStatusBarColor(1, 0, 0)
+        factionBar.contentText:SetText("Hated")
+    elseif standingID == 2 then                         -- Hostile
+        factionBar:SetStatusBarColor(1, 0.25, 0)
+        factionBar.contentText:SetText("Hostile")
+    elseif standingID == 3 then                         -- Unfriendly
+        factionBar:SetStatusBarColor(1, 0.5, 0)
+        factionBar.contentText:SetText("Unfriendly")
+    elseif standingID == 4 then                         -- Neutral
+        factionBar:SetStatusBarColor(1, 0.75, 0)
+        factionBar.contentText:SetText("Neutral")
+    elseif standingID == 5 then                         -- Friendly
+        factionBar:SetStatusBarColor(0, 0.4, 0)
+        factionBar.contentText:SetText("Friendly")
+    elseif standingID == 6 then                         -- Honored
+        factionBar:SetStatusBarColor(0, 0.6, 0)
+        factionBar.contentText:SetText("Honored")
+    elseif standingID == 7 then                         -- Revered
+        factionBar:SetStatusBarColor(0, 0.8, 0)
+        factionBar.contentText:SetText("Revered")
+    elseif standingID == 8 then                         -- Exalted
+        factionBar:SetStatusBarColor(0, 1, 0)
+        factionBar.contentText:SetText("Exalted")
+    elseif standingID == 9 then                         -- Paragon
+        factionBar:SetStatusBarColor(0, 1, 1)
+        factionBar.contentText:SetText("Paragon")
+    end
     
-    return factionBar
+    return factionBarFrame
 end
 
 function addonMain:OnLoad(self)
+    addonMain:initializeConfig()
     local GameUtilityAddonFrame = CreateFrame("FRAME", "GameUtilityAddonFrame", UIParent)
     GameUtilityAddonFrame:SetPoint("CENTER", 0, 0)
     GameUtilityAddonFrame.texture = GameUtilityAddonFrame:CreateTexture()
@@ -71,8 +115,8 @@ function addonMain:OnLoad(self)
     --GameUtilityAddonFrame.MinuteCounter = 0
     GameUtilityAddonFrame:SetSize(800, 400)
     GameUtilityAddonFrame.texture:SetColorTexture(0.5, 0.5, 0.5, 0.5)
-
-    addonMain:CreateFactionBar(0, 1000, 666)
+    
+    
 
     local AddonTitle = GameUtilityAddonFrame:CreateFontString("AddonTitle", "ARTWORK", "GameFontNormal")
     AddonTitle:SetText(nameFull)
@@ -86,6 +130,8 @@ function addonMain:OnLoad(self)
         end
     end
 
+    addonMain:drawProgressBars()
+
 
     TempTestButton1 = CreateFrame("Button", "TempTestButton1", GameUtilityAddonFrame, "UIPanelButtonTemplate")
     TempTestButton1.contentText = TempTestButton1:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
@@ -96,16 +142,14 @@ function addonMain:OnLoad(self)
     TempTestButton1.contentText:SetHeight("15")
     TempTestButton1:SetPoint("TOP", 100, -25)
     TempTestButton1.contentText:SetPoint("CENTER", 0, -1)
-    TempTestButton1:SetScript("OnClick", function() addonMain:testButtonClicked() end )
+    TempTestButton1:SetScript("OnClick", function() ReloadUI() end )
 
-    OptionsPanel = CreateFrame("FRAME", "AZP-GU-OptionsPanel")
-    OptionsPanel.name = "AzerPUG GameUtility"
-    InterfaceOptions_AddCategory(OptionsPanel)
+    
 
-    local OptionsHeader = OptionsPanel:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
+    local OptionsHeader = AZPGUOptionsSubPanelRepBars:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
     OptionsHeader:SetText(promo .. dash .. "Options")
-    OptionsHeader:SetWidth(OptionsPanel:GetWidth())
-    OptionsHeader:SetHeight(OptionsPanel:GetHeight())
+    OptionsHeader:SetWidth(AZPGUOptionsSubPanelRepBars:GetWidth())
+    OptionsHeader:SetHeight(AZPGUOptionsSubPanelRepBars:GetHeight())
     OptionsHeader:SetPoint("TOP", 0, -10)
     
     local defaultScrollBehaviour = ReputationListScrollFrame:GetScript("OnVerticalScroll")
@@ -120,17 +164,45 @@ function addonMain:OnLoad(self)
     end)
 end
 
+function addonMain:drawProgressBars()
+    if GameUtilityProgressFrame ~= nil then
+        GameUtilityProgressFrame:Hide()
+        GameUtilityProgressFrame:SetParent(nil)
+        GameUtilityProgressFrame = nil
+    end
+    local ProgressFrame = CreateFrame("Frame", "GameUtilityProgressFrame", GameUtilityAddonFrame)
+    ProgressFrame:SetPoint("TOPLEFT")
+    ProgressFrame:SetSize(400, 600)
+
+    local last = nil
+    for factionID,_ in pairs(AGUCheckedData["checkFactionIDs"]) do
+        local faction, _, standingID, min, max, value, _, _, isHeader, _, _, _, _, _ = GetFactionInfoByID(factionID)
+        local cur = addonMain:CreateFactionBar(standingID, min, max, value, faction, factionID)
+        if last ~= nil then
+            cur:SetPoint("TOPLEFT", last, "BOTTOMLEFT")
+        end
+        last = cur
+    end
+end
+
 function addonMain:initializeConfig()
-    
+    if AGUCheckedData == nil then
+        AGUCheckedData = initialConfig
+    end
+    addonMain:updateFactionCheckboxes()
 end
 
 function addonMain:OnEvent(self, event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
         GameUtilityAddonFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        addonMain:initializeConfig()
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
     elseif event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
         addonMain:updateFactionCheckboxes()
+    elseif event == "ADDON_LOADED" then
+        if addonLoaded == false then
+            AZPAddonHelper:DelayedExecution(5, function() addonMain:initializeConfig() end)
+            addonLoaded = true
+        end
     end
 end
 
@@ -142,16 +214,24 @@ function addonMain:updateFactionCheckboxes()
         elseif factionBarFrame.itemCheckBox == nil then
             factionBarFrame.itemCheckBox = CreateFrame("CheckButton", nil, factionBarFrame, "ChatConfigCheckButtonTemplate")
             factionBarFrame.itemCheckBox:SetSize(20, 20)
-            factionBarFrame.itemCheckBox:SetPoint("LEFT", -15, 0)
-            factionBarFrame.itemCheckBox:SetChecked(true)
-            factionBarFrame.itemCheckBox:SetScript("OnClick", function(sender) print("hey!" .. sender:GetParent().index) end)
+            factionBarFrame.itemCheckBox:SetPoint("RIGHT", 25, 0)
+            factionBarFrame.itemCheckBox:SetScript("OnClick", function(sender)
+                local faction, standingID, min, max, value, isHeader, factionID = addonMain:getUsefulFactionInfo(sender:GetParent().index)
+                if sender:GetChecked() == true then
+                    AGUCheckedData["checkFactionIDs"][factionID] = true
+                else
+                    AGUCheckedData["checkFactionIDs"][factionID] = nil
+                end
+                addonMain:drawProgressBars()
+            end)
         end
 
-        local faction, min, max, value, isHeader, factioId = addonMain:getUsefulFactionInfo(factionBarFrame["index"])
+        local faction, standingID, min, max, value, isHeader, factionID = addonMain:getUsefulFactionInfo(factionBarFrame["index"])
         if isHeader then
             factionBarFrame.itemCheckBox:Hide()
         else
             factionBarFrame.itemCheckBox:Show()
+            factionBarFrame.itemCheckBox:SetChecked(AGUCheckedData["checkFactionIDs"][factionID])
         end
     end
     -- Look for event to update faction screen, save state in SavedVariable, iterate faction screen using GetFactionInfo, render rep bars using GetFactionInfoByID.
@@ -159,8 +239,8 @@ function addonMain:updateFactionCheckboxes()
 end
 
 function addonMain:getUsefulFactionInfo(index)
-    local faction, _, _, min, max, value, _, _, isHeader, _, _, _, _, factionId = GetFactionInfo(index)
-    return faction, min, max, value, isHeader, factionId
+    local faction, _, standingID, min, max, value, _, _, isHeader, _, _, _, _, factionId = GetFactionInfo(index)
+    return faction, standingID, min, max, value, isHeader, factionId
 end
 
 function addonMain:testButtonClicked()
