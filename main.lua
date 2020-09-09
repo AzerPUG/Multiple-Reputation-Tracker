@@ -1,33 +1,83 @@
 local GlobalAddonName, AGU = ...
 
-local OptionsPanel
-
 local initialConfig = AGU.initialConfig
 
-local addonVersion = "v0.1"
+local AZPGURepBarsVersion = 0.1
 local dash = " - "
-local name = "GameUtility" .. dash .. "RepBaws"
+local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
-local promo = (nameFull .. dash ..  addonVersion)
+local promo = (nameFull .. dash ..  AZPGURepBarsVersion)
 
 local addonLoaded = false
-
 local addonMain = LibStub("AceAddon-3.0"):NewAddon("GameUtility-RepBars", "AceConsole-3.0")
 
--- function addonMain:MiniMapIconToggle()
--- 	self.db.profile.minimap.hide = not self.db.profile.minimap.hide
--- 	if self.db.profile.minimap.hide then
--- 		icon:Hide("GameUtility")
--- 	else
--- 		icon:Show("GameUtility")
--- 	end
--- end
+function AZP.GU.VersionControl:RepBars()
+    return AZPGURepBarsVersion
+end
+
+function AZP.GU.OnLoad:RepBars(self)
+    print("\124cffff00ffTestingTestingTesting\124r")
+    addonMain:initializeConfig()
+    local GameUtilityAddonFrame = CreateFrame("FRAME", "GameUtilityAddonFrame", UIParent)
+    GameUtilityAddonFrame:SetPoint("CENTER", 0, 0)
+    GameUtilityAddonFrame.texture = GameUtilityAddonFrame:CreateTexture()
+    GameUtilityAddonFrame.texture:SetAllPoints(true)
+    GameUtilityAddonFrame:EnableMouse(true)
+    GameUtilityAddonFrame:SetMovable(true)
+    GameUtilityAddonFrame:SetScript("OnEvent", function(...) addonMain:OnEvent(...) end)
+    GameUtilityAddonFrame:RegisterForDrag("LeftButton")
+    GameUtilityAddonFrame:SetScript("OnDragStart", GameUtilityAddonFrame.StartMoving)
+    GameUtilityAddonFrame:SetScript("OnDragStop", GameUtilityAddonFrame.StopMovingOrSizing)
+    GameUtilityAddonFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    GameUtilityAddonFrame:RegisterEvent("UPDATE_FACTION")
+    GameUtilityAddonFrame:RegisterEvent("LFG_BONUS_FACTION_ID_UPDATED")
+    GameUtilityAddonFrame:SetSize(800, 400)
+    GameUtilityAddonFrame.texture:SetColorTexture(0.5, 0.5, 0.5, 0.5)
+
+    local AddonTitle = GameUtilityAddonFrame:CreateFontString("AddonTitle", "ARTWORK", "GameFontNormal")
+    AddonTitle:SetText(nameFull)
+    AddonTitle:SetHeight("10")
+    AddonTitle:SetPoint("TOP", "GameUtilityAddonFrame", -100, -3)
+    local repBarFrames = {}
+    for i=1, 10 do
+        local FrameName
+        if FrameName ~= nil then
+                --Wire, what is happening here? :P
+        end
+    end
+
+    addonMain:drawProgressBars()
+
+    TempTestButton1 = CreateFrame("Button", "TempTestButton1", GameUtilityAddonFrame, "UIPanelButtonTemplate")      --Rename
+    TempTestButton1.contentText = TempTestButton1:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    TempTestButton1.contentText:SetText("TEST!")
+    TempTestButton1:SetWidth("100")
+    TempTestButton1:SetHeight("25")
+    TempTestButton1.contentText:SetWidth("100")
+    TempTestButton1.contentText:SetHeight("15")
+    TempTestButton1:SetPoint("TOP", 100, -25)
+    TempTestButton1.contentText:SetPoint("CENTER", 0, -1)
+    TempTestButton1:SetScript("OnClick", function() ReloadUI() end )
+
+    local OptionsHeader = AZPGUOptionsSubPanelRepBars:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
+    OptionsHeader:SetText(promo .. dash .. "Options")
+    OptionsHeader:SetWidth(AZPGUOptionsSubPanelRepBars:GetWidth())
+    OptionsHeader:SetHeight(AZPGUOptionsSubPanelRepBars:GetHeight())
+    OptionsHeader:SetPoint("TOP", 0, -10)
+
+    local defaultScrollBehaviour = ReputationListScrollFrame:GetScript("OnVerticalScroll")
+    ReputationListScrollFrame:SetScript("OnVerticalScroll", function(...)
+        defaultScrollBehaviour(...)
+        addonMain:updateFactionCheckboxes()
+    end)
+    local defaultFrameShowBehaviour = ReputationFrame:GetScript("OnShow")
+    ReputationFrame:SetScript("OnShow", function(...)
+        defaultFrameShowBehaviour(...)
+        addonMain:updateFactionCheckboxes() 
+    end)
+end
 
 function addonMain:CreateFactionBar(standingID, min, max, current, name, factionID)
-
-    --  TODO: Add Paragon Reputation Stuff: https://wow.gamepedia.com/API_C_Reputation.GetFactionParagonInfo
-    --  If Paragonrep: Change StandinID to 9, Change min/max to other numbers.
-
     if standingID == 8 then
         local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(factionID)
         if currentValue ~= nil and threshold ~= nil then
@@ -38,7 +88,7 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
         end
     end
 
-    local factionBarFrame = CreateFrame("Frame", nil, GameUtilityProgressFrame) --With the name / header / title
+    local factionBarFrame = CreateFrame("Frame", nil, GameUtilityProgressFrame)
     local factionBar = CreateFrame("StatusBar", nil, factionBarFrame)
     factionBarFrame:SetSize(300, 25)
     factionBarFrame:SetPoint("TOPLEFT", 50, -50)
@@ -93,77 +143,6 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
     return factionBarFrame
 end
 
-function addonMain:OnLoad(self)
-    addonMain:initializeConfig()
-    local GameUtilityAddonFrame = CreateFrame("FRAME", "GameUtilityAddonFrame", UIParent)
-    GameUtilityAddonFrame:SetPoint("CENTER", 0, 0)
-    GameUtilityAddonFrame.texture = GameUtilityAddonFrame:CreateTexture()
-    GameUtilityAddonFrame.texture:SetAllPoints(true)
-    GameUtilityAddonFrame:EnableMouse(true)
-    GameUtilityAddonFrame:SetMovable(true)
-    --GameUtilityAddonFrame:SetScript("OnUpdate", function(...) addonMain:OnUpdate(...) end)
-    GameUtilityAddonFrame:SetScript("OnEvent", function(...) addonMain:OnEvent(...) end)
-    GameUtilityAddonFrame:RegisterForDrag("LeftButton")
-    GameUtilityAddonFrame:SetScript("OnDragStart", GameUtilityAddonFrame.StartMoving)
-    GameUtilityAddonFrame:SetScript("OnDragStop", GameUtilityAddonFrame.StopMovingOrSizing)
-    GameUtilityAddonFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-    GameUtilityAddonFrame:RegisterEvent("UPDATE_FACTION")
-    GameUtilityAddonFrame:RegisterEvent("LFG_BONUS_FACTION_ID_UPDATED")
-    --GameUtilityAddonFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-    --GameUtilityAddonFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-    --GameUtilityAddonFrame.TimeSinceLastUpdate = 0
-    --GameUtilityAddonFrame.MinuteCounter = 0
-    GameUtilityAddonFrame:SetSize(800, 400)
-    GameUtilityAddonFrame.texture:SetColorTexture(0.5, 0.5, 0.5, 0.5)
-    
-    
-
-    local AddonTitle = GameUtilityAddonFrame:CreateFontString("AddonTitle", "ARTWORK", "GameFontNormal")
-    AddonTitle:SetText(nameFull)
-    AddonTitle:SetHeight("10")
-    AddonTitle:SetPoint("TOP", "GameUtilityAddonFrame", -100, -3)
-    local repBarFrames = {}
-    for i=1, 10 do
-        local FrameName
-        if FrameName ~= nil then
-
-        end
-    end
-
-    addonMain:drawProgressBars()
-
-
-    TempTestButton1 = CreateFrame("Button", "TempTestButton1", GameUtilityAddonFrame, "UIPanelButtonTemplate")
-    TempTestButton1.contentText = TempTestButton1:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    TempTestButton1.contentText:SetText("TEST!")
-    TempTestButton1:SetWidth("100")
-    TempTestButton1:SetHeight("25")
-    TempTestButton1.contentText:SetWidth("100")
-    TempTestButton1.contentText:SetHeight("15")
-    TempTestButton1:SetPoint("TOP", 100, -25)
-    TempTestButton1.contentText:SetPoint("CENTER", 0, -1)
-    TempTestButton1:SetScript("OnClick", function() ReloadUI() end )
-
-    
-
-    local OptionsHeader = AZPGUOptionsSubPanelRepBars:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
-    OptionsHeader:SetText(promo .. dash .. "Options")
-    OptionsHeader:SetWidth(AZPGUOptionsSubPanelRepBars:GetWidth())
-    OptionsHeader:SetHeight(AZPGUOptionsSubPanelRepBars:GetHeight())
-    OptionsHeader:SetPoint("TOP", 0, -10)
-    
-    local defaultScrollBehaviour = ReputationListScrollFrame:GetScript("OnVerticalScroll")
-    ReputationListScrollFrame:SetScript("OnVerticalScroll", function(...)
-        defaultScrollBehaviour(...)
-        addonMain:updateFactionCheckboxes()
-    end)
-    local defaultFrameShowBehaviour = ReputationFrame:GetScript("OnShow")
-    ReputationFrame:SetScript("OnShow", function(...)
-        defaultFrameShowBehaviour(...)
-        addonMain:updateFactionCheckboxes() 
-    end)
-end
-
 function addonMain:drawProgressBars()
     if GameUtilityProgressFrame ~= nil then
         GameUtilityProgressFrame:Hide()
@@ -192,11 +171,9 @@ function addonMain:initializeConfig()
     addonMain:updateFactionCheckboxes()
 end
 
-function addonMain:OnEvent(self, event, ...)
-    if event == "PLAYER_ENTERING_WORLD" then
-        GameUtilityAddonFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-    elseif event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
+function AZP.GU.OnEvent:RepBars(self, event, ...)
+    print("\124cffff00fftest123\124r")
+    if event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
         addonMain:updateFactionCheckboxes()
     elseif event == "ADDON_LOADED" then
         if addonLoaded == false then
@@ -235,7 +212,7 @@ function addonMain:updateFactionCheckboxes()
         end
     end
     -- Look for event to update faction screen, save state in SavedVariable, iterate faction screen using GetFactionInfo, render rep bars using GetFactionInfoByID.
-    
+    -- Wire is this part done?
 end
 
 function addonMain:getUsefulFactionInfo(index)
@@ -243,8 +220,4 @@ function addonMain:getUsefulFactionInfo(index)
     return faction, standingID, min, max, value, isHeader, factionId
 end
 
-function addonMain:testButtonClicked()
-    -- Get Specific reputation, current / max. Show numbers / percentage. Show name of current level (honored / revered / exalted / paragon).
-end
-
-addonMain:OnLoad()
+--AZP.GU.OnLoad:RepBars()
