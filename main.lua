@@ -16,32 +16,11 @@ function AZP.GU.VersionControl:RepBars()
 end
 
 function AZP.GU.OnLoad:RepBars(self)
-    print("\124cffff00ffTestingTestingTesting\124r")
     addonMain:initializeConfig()
-    
-    local repBarFrames = {}
-    for i=1, 10 do
-        local FrameName
-        if FrameName ~= nil then
-                --Wire, what is happening here? :P
-        end
-    end
-
     addonMain:drawProgressBars()
 
-    TempTestButton1 = CreateFrame("Button", "TempTestButton1", GameUtilityAddonFrame, "UIPanelButtonTemplate")      --Rename
-    TempTestButton1.contentText = TempTestButton1:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    TempTestButton1.contentText:SetText("TEST!")
-    TempTestButton1:SetWidth("100")
-    TempTestButton1:SetHeight("25")
-    TempTestButton1.contentText:SetWidth("100")
-    TempTestButton1.contentText:SetHeight("15")
-    TempTestButton1:SetPoint("TOP", 100, -25)
-    TempTestButton1.contentText:SetPoint("CENTER", 0, -1)
-    TempTestButton1:SetScript("OnClick", function() ReloadUI() end )
-
     local OptionsHeader = RepBarsSubPanel:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
-    OptionsHeader:SetText(promo .. dash .. "Options")
+    OptionsHeader:SetText(promo)
     OptionsHeader:SetWidth(RepBarsSubPanel:GetWidth())
     OptionsHeader:SetHeight(RepBarsSubPanel:GetHeight())
     OptionsHeader:SetPoint("TOP", 0, -10)
@@ -60,7 +39,7 @@ end
 
 function addonMain:CreateFactionBar(standingID, min, max, current, name, factionID)
     if standingID == 8 then
-        local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(factionID)
+        local currentValue, threshold = C_Reputation.GetFactionParagonInfo(factionID)
         if currentValue ~= nil and threshold ~= nil then
             current = (currentValue % 10000)
             max = 10000
@@ -72,7 +51,7 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
     local factionBarFrame = CreateFrame("Frame", nil, GameUtilityProgressFrame)
     local factionBar = CreateFrame("StatusBar", nil, factionBarFrame)
     factionBarFrame:SetSize(300, 25)
-    factionBarFrame:SetPoint("TOPLEFT", 50, -50)
+    factionBarFrame:SetPoint("TOPLEFT", 10, -20)
     factionBarFrame.contentText = factionBarFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     factionBarFrame.contentText:SetText(name)
     factionBarFrame.contentText:SetPoint("LEFT")
