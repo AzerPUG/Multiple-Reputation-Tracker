@@ -18,26 +18,7 @@ end
 function AZP.GU.OnLoad:RepBars(self)
     print("\124cffff00ffTestingTestingTesting\124r")
     addonMain:initializeConfig()
-    local GameUtilityAddonFrame = CreateFrame("FRAME", "GameUtilityAddonFrame", UIParent)
-    GameUtilityAddonFrame:SetPoint("CENTER", 0, 0)
-    GameUtilityAddonFrame.texture = GameUtilityAddonFrame:CreateTexture()
-    GameUtilityAddonFrame.texture:SetAllPoints(true)
-    GameUtilityAddonFrame:EnableMouse(true)
-    GameUtilityAddonFrame:SetMovable(true)
-    GameUtilityAddonFrame:SetScript("OnEvent", function(...) addonMain:OnEvent(...) end)
-    GameUtilityAddonFrame:RegisterForDrag("LeftButton")
-    GameUtilityAddonFrame:SetScript("OnDragStart", GameUtilityAddonFrame.StartMoving)
-    GameUtilityAddonFrame:SetScript("OnDragStop", GameUtilityAddonFrame.StopMovingOrSizing)
-    GameUtilityAddonFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-    GameUtilityAddonFrame:RegisterEvent("UPDATE_FACTION")
-    GameUtilityAddonFrame:RegisterEvent("LFG_BONUS_FACTION_ID_UPDATED")
-    GameUtilityAddonFrame:SetSize(800, 400)
-    GameUtilityAddonFrame.texture:SetColorTexture(0.5, 0.5, 0.5, 0.5)
-
-    local AddonTitle = GameUtilityAddonFrame:CreateFontString("AddonTitle", "ARTWORK", "GameFontNormal")
-    AddonTitle:SetText(nameFull)
-    AddonTitle:SetHeight("10")
-    AddonTitle:SetPoint("TOP", "GameUtilityAddonFrame", -100, -3)
+    
     local repBarFrames = {}
     for i=1, 10 do
         local FrameName
@@ -59,10 +40,10 @@ function AZP.GU.OnLoad:RepBars(self)
     TempTestButton1.contentText:SetPoint("CENTER", 0, -1)
     TempTestButton1:SetScript("OnClick", function() ReloadUI() end )
 
-    local OptionsHeader = AZPGUOptionsSubPanelRepBars:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
+    local OptionsHeader = RepBarsSubPanel:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
     OptionsHeader:SetText(promo .. dash .. "Options")
-    OptionsHeader:SetWidth(AZPGUOptionsSubPanelRepBars:GetWidth())
-    OptionsHeader:SetHeight(AZPGUOptionsSubPanelRepBars:GetHeight())
+    OptionsHeader:SetWidth(RepBarsSubPanel:GetWidth())
+    OptionsHeader:SetHeight(RepBarsSubPanel:GetHeight())
     OptionsHeader:SetPoint("TOP", 0, -10)
 
     local defaultScrollBehaviour = ReputationListScrollFrame:GetScript("OnVerticalScroll")
@@ -172,14 +153,8 @@ function addonMain:initializeConfig()
 end
 
 function AZP.GU.OnEvent:RepBars(self, event, ...)
-    print("\124cffff00fftest123\124r")
     if event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
         addonMain:updateFactionCheckboxes()
-    elseif event == "ADDON_LOADED" then
-        if addonLoaded == false then
-            AZPAddonHelper:DelayedExecution(5, function() addonMain:initializeConfig() end)
-            addonLoaded = true
-        end
     end
 end
 
