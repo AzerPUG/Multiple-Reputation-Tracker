@@ -129,6 +129,7 @@ function addonMain:initializeConfig()
         AGUCheckedData = initialConfig
     end
     addonMain:updateFactionCheckboxes()
+    AZPAddonHelper:DelayedExecution(5, function() addonMain:drawProgressBars() end)
 end
 
 function AZP.GU.OnEvent:RepBars(self, event, ...)
@@ -173,5 +174,3 @@ function addonMain:getUsefulFactionInfo(index)
     local faction, _, standingID, min, max, value, _, _, isHeader, _, _, _, _, factionId = GetFactionInfo(index)
     return faction, standingID, min, max, value, isHeader, factionId
 end
-
---AZP.GU.OnLoad:RepBars()
