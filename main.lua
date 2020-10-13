@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local initialConfig = AGU.initialConfig
 
-local AZPGURepBarsVersion = 0.2
+local AZPGURepBarsVersion = 3
 local dash = " - "
 local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
@@ -11,6 +11,9 @@ local promo = (nameFull .. dash ..  AZPGURepBarsVersion)
 local addonLoaded = false
 local addonMain = LibStub("AceAddon-3.0"):NewAddon("GameUtility-RepBars", "AceConsole-3.0")
 
+local ModuleStats = AZP.GU.ModuleStats
+local ProgressBarsFrame
+
 function AZP.GU.VersionControl:RepBars()
     return AZPGURepBarsVersion
 end
@@ -18,6 +21,8 @@ end
 function AZP.GU.OnLoad:RepBars(self)
     addonMain:initializeConfig()
     addonMain:drawProgressBars()
+
+    ModuleStats["Frames"]["RepBars"]:SetSize(400, 300)
 
     local OptionsHeader = RepBarsSubPanel:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
     OptionsHeader:SetText(promo)
@@ -33,7 +38,7 @@ function AZP.GU.OnLoad:RepBars(self)
     local defaultFrameShowBehaviour = ReputationFrame:GetScript("OnShow")
     ReputationFrame:SetScript("OnShow", function(...)
         defaultFrameShowBehaviour(...)
-        addonMain:updateFactionCheckboxes() 
+        addonMain:updateFactionCheckboxes()
     end)
 end
 
@@ -48,10 +53,10 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
         end
     end
 
-    local factionBarFrame = CreateFrame("Frame", nil, GameUtilityProgressFrame)
+    local factionBarFrame = CreateFrame("Frame", nil, ProgressBarsFrame)
     local factionBar = CreateFrame("StatusBar", nil, factionBarFrame)
     factionBarFrame:SetSize(300, 25)
-    factionBarFrame:SetPoint("TOPLEFT", 10, -20)
+    factionBarFrame:SetPoint("TOPLEFT", 10, -10)
     factionBarFrame.contentText = factionBarFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     factionBarFrame.contentText:SetText(name)
     factionBarFrame.contentText:SetPoint("LEFT")
@@ -99,19 +104,20 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
         factionBar:SetStatusBarColor(0, 1, 1)
         factionBar.contentText:SetText("Paragon")
     end
-    
+
     return factionBarFrame
 end
 
 function addonMain:drawProgressBars()
-    if GameUtilityProgressFrame ~= nil then
-        GameUtilityProgressFrame:Hide()
-        GameUtilityProgressFrame:SetParent(nil)
-        GameUtilityProgressFrame = nil
+    if ProgressBarsFrame ~= nil then
+       ProgressBarsFrame:Hide()
+       ProgressBarsFrame:SetParent(nil)
+       ProgressBarsFrame = nil
     end
-    local ProgressFrame = CreateFrame("Frame", "GameUtilityProgressFrame", GameUtilityAddonFrame)
-    ProgressFrame:SetPoint("TOPLEFT")
-    ProgressFrame:SetSize(400, 600)
+
+    ProgressBarsFrame = CreateFrame("Button", "ProgressBarsFrame", ModuleStats["Frames"]["RepBars"])
+    ProgressBarsFrame:SetSize(ModuleStats["Frames"]["RepBars"]:GetWidth(), ModuleStats["Frames"]["RepBars"]:GetHeight())
+    ProgressBarsFrame:SetPoint("TOP")
 
     local last = nil
     for factionID,_ in pairs(AGUCheckedData["checkFactionIDs"]) do
