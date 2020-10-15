@@ -1,6 +1,6 @@
 local GlobalAddonName, AGU = ...
 
-AGU.initialConfig =
+AGU.RepBarsConfig =
 {
     ["checkFactionIDs"] = {}
 }

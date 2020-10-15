@@ -1,8 +1,8 @@
 local GlobalAddonName, AGU = ...
 
-local initialConfig = AGU.initialConfig
+local RepBarsConfig = AGU.RepBarsConfig
 
-local AZPGURepBarsVersion = 3
+local AZPGURepBarsVersion = 4
 local dash = " - "
 local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
@@ -120,7 +120,7 @@ function addonMain:drawProgressBars()
     ProgressBarsFrame:SetPoint("TOP")
 
     local last = nil
-    for factionID,_ in pairs(AGUCheckedData["checkFactionIDs"]) do
+    for factionID, _ in pairs(AZPGURepBarsData["checkFactionIDs"]) do
         local faction, _, standingID, min, max, value, _, _, isHeader, _, _, _, _, _ = GetFactionInfoByID(factionID)
         local cur = addonMain:CreateFactionBar(standingID, min, max, value, faction, factionID)
         if last ~= nil then
@@ -131,15 +131,16 @@ function addonMain:drawProgressBars()
 end
 
 function addonMain:initializeConfig()
-    if AGUCheckedData == nil then
-        AGUCheckedData = initialConfig
+    if AZPGURepBarsData == nil then
+        AZPGURepBarsData = RepBarsConfig
     end
     addonMain:updateFactionCheckboxes()
     AZPAddonHelper:DelayedExecution(5, function() addonMain:drawProgressBars() end)
 end
 
 function AZP.GU.OnEvent:RepBars(self, event, ...)
-    if event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
+    --if event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
+    if event == "UPDATE_FACTION" then
         addonMain:updateFactionCheckboxes()
     end
 end
@@ -156,9 +157,9 @@ function addonMain:updateFactionCheckboxes()
             factionBarFrame.itemCheckBox:SetScript("OnClick", function(sender)
                 local faction, standingID, min, max, value, isHeader, factionID = addonMain:getUsefulFactionInfo(sender:GetParent().index)
                 if sender:GetChecked() == true then
-                    AGUCheckedData["checkFactionIDs"][factionID] = true
+                    AZPGURepBarsData["checkFactionIDs"][factionID] = true
                 else
-                    AGUCheckedData["checkFactionIDs"][factionID] = nil
+                    AZPGURepBarsData["checkFactionIDs"][factionID] = nil
                 end
                 addonMain:drawProgressBars()
             end)
@@ -169,11 +170,9 @@ function addonMain:updateFactionCheckboxes()
             factionBarFrame.itemCheckBox:Hide()
         else
             factionBarFrame.itemCheckBox:Show()
-            factionBarFrame.itemCheckBox:SetChecked(AGUCheckedData["checkFactionIDs"][factionID])
+            factionBarFrame.itemCheckBox:SetChecked(AZPGURepBarsData["checkFactionIDs"][factionID])
         end
     end
-    -- Look for event to update faction screen, save state in SavedVariable, iterate faction screen using GetFactionInfo, render rep bars using GetFactionInfoByID.
-    -- Wire is this part done?
 end
 
 function addonMain:getUsefulFactionInfo(index)
