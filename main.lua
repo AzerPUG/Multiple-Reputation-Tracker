@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local RepBarsConfig = AGU.RepBarsConfig
 
-local AZPGURepBarsVersion = 7
+local AZPGURepBarsVersion = 8
 local dash = " - "
 local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
@@ -151,7 +151,8 @@ function addonMain:updateFactionCheckboxes()
         if factionBarFrame["index"] == nil then
             return
         elseif factionBarFrame.itemCheckBox == nil then
-            factionBarFrame.itemCheckBox = CreateFrame("CheckButton", nil, factionBarFrame, "ChatConfigCheckButtonTemplate")
+            --factionBarFrame.itemCheckBox = CreateFrame("CheckButton", nil, factionBarFrame, "ChatConfigCheckButtonTemplate")
+            factionBarFrame.itemCheckBox = CreateFrame("CheckButton", nil, factionBarFrame, "ChatConfigBaseCheckButtonTemplate")
             factionBarFrame.itemCheckBox:SetSize(20, 20)
             factionBarFrame.itemCheckBox:SetPoint("RIGHT", 25, 0)
             factionBarFrame.itemCheckBox:SetScript("OnClick", function(sender)
