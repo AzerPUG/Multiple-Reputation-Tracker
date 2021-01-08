@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local RepBarsConfig = AGU.RepBarsConfig
 
-local AZPGURepBarsVersion = 8
+local AZPGURepBarsVersion = 9
 local dash = " - "
 local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
@@ -23,6 +23,7 @@ function AZP.GU.OnLoad:RepBars(self)
     addonMain:drawProgressBars()
 
     ModuleStats["Frames"]["RepBars"]:SetSize(400, 300)
+    addonMain:ChangeOptionsText()
 
     local OptionsHeader = RepBarsSubPanel:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
     OptionsHeader:SetText(promo)
@@ -179,4 +180,26 @@ end
 function addonMain:getUsefulFactionInfo(index)
     local faction, _, standingID, min, max, value, _, _, isHeader, _, _, _, _, factionId = GetFactionInfo(index)
     return faction, standingID, min, max, value, isHeader, factionId
+end
+
+function addonMain:ChangeOptionsText()
+    RepBarsSubPanelPHTitle:Hide()
+    RepBarsSubPanelPHText:Hide()
+    RepBarsSubPanelPHTitle:SetParent(nil)
+    RepBarsSubPanelPHText:SetParent(nil)
+
+    local RepBarsSubPanelHeader = RepBarsSubPanel:CreateFontString("RepBarsSubPanelHeader", "ARTWORK", "GameFontNormalHuge")
+    RepBarsSubPanelHeader:SetText(promo)
+    RepBarsSubPanelHeader:SetWidth(RepBarsSubPanel:GetWidth())
+    RepBarsSubPanelHeader:SetHeight(RepBarsSubPanel:GetHeight())
+    RepBarsSubPanelHeader:SetPoint("TOP", 0, -10)
+
+    local RepBarsSubPanelText = RepBarsSubPanel:CreateFontString("RepBarsSubPanelText", "ARTWORK", "GameFontNormalHuge")
+    RepBarsSubPanelText:SetWidth(RepBarsSubPanel:GetWidth())
+    RepBarsSubPanelText:SetHeight(RepBarsSubPanel:GetHeight())
+    RepBarsSubPanelText:SetPoint("TOPLEFT", 0, -50)
+    RepBarsSubPanelText:SetText(
+        "AzerPUG-GameUtility-RepBars does not have options yet.\n" ..
+        "For feature requests visit our Discord Server!"
+    )
 end
