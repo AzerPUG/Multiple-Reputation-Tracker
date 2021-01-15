@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local RepBarsConfig = AGU.RepBarsConfig
 
-local AZPGURepBarsVersion = 9
+local AZPGURepBarsVersion = 10
 local dash = " - "
 local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
@@ -77,36 +77,39 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
     factionBar.contentText:SetPoint("CENTER")
     factionBar.contentText:SetSize(150, 20)
 
-    if standingID == 1 then                             -- Hated
-        factionBar:SetStatusBarColor(1, 0, 0)
-        factionBar.contentText:SetText("Hated")
-    elseif standingID == 2 then                         -- Hostile
-        factionBar:SetStatusBarColor(1, 0.25, 0)
-        factionBar.contentText:SetText("Hostile")
-    elseif standingID == 3 then                         -- Unfriendly
-        factionBar:SetStatusBarColor(1, 0.5, 0)
-        factionBar.contentText:SetText("Unfriendly")
-    elseif standingID == 4 then                         -- Neutral
-        factionBar:SetStatusBarColor(1, 0.75, 0)
-        factionBar.contentText:SetText("Neutral")
-    elseif standingID == 5 then                         -- Friendly
-        factionBar:SetStatusBarColor(0, 0.4, 0)
-        factionBar.contentText:SetText("Friendly")
-    elseif standingID == 6 then                         -- Honored
-        factionBar:SetStatusBarColor(0, 0.6, 0)
-        factionBar.contentText:SetText("Honored")
-    elseif standingID == 7 then                         -- Revered
-        factionBar:SetStatusBarColor(0, 0.8, 0)
-        factionBar.contentText:SetText("Revered")
-    elseif standingID == 8 then                         -- Exalted
-        factionBar:SetStatusBarColor(0, 1, 0)
-        factionBar.contentText:SetText("Exalted")
-    elseif standingID == 9 then                         -- Paragon
-        factionBar:SetStatusBarColor(0, 1, 1)
-        factionBar.contentText:SetText("Paragon")
-    end
+    local rValue, gValue, bValue, Text = addonMain:GetStandingAndColor(standingID)
+    factionBar:SetStatusBarColor(rValue, gValue, bValue)
+    factionBar.contentText:SetText(Text)
 
+    factionBar:SetScript("OnEnter", function()
+        factionBar.contentText:SetText(current .. "/" .. max .. " (" .. math.floor(current/max*100) .. "%)")
+    end)
+    factionBar:SetScript("OnLeave", function()
+        factionBar.contentText:SetText(Text)
+    end)
     return factionBarFrame
+end
+
+function addonMain:GetStandingAndColor(standingID)
+    if standingID == 1 then                             -- Hated
+        return 1, 0, 0, "Hated"
+    elseif standingID == 2 then                         -- Hostile
+        return 1, 0.25, 0, "Hostile"
+    elseif standingID == 3 then                         -- Unfriendly
+        return 1, 0.5, 0, "Unfriendly"
+    elseif standingID == 4 then                         -- Neutral
+        return 1, 0.75, 0, "Neutral"
+    elseif standingID == 5 then                         -- Friendly
+        return 0, 0.4, 0, "Friendly"
+    elseif standingID == 6 then                         -- Honored
+        return 0, 0.6, 0, "Honored"
+    elseif standingID == 7 then                         -- Revered
+        return 0, 0.8, 0, "Revered"
+    elseif standingID == 8 then                         -- Exalted
+        return 0, 1, 0, "Exalted"
+    elseif standingID == 9 then                         -- Paragon
+        return 0, 1, 1, "Paragon"
+    end
 end
 
 function addonMain:drawProgressBars()
