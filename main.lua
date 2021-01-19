@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local RepBarsConfig = AGU.RepBarsConfig
 
-local AZPGURepBarsVersion = 10
+local AZPGURepBarsVersion = 11
 local dash = " - "
 local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
@@ -74,7 +74,7 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
     factionBar.bg:SetAllPoints(true)
     factionBar.bg:SetVertexColor(0, 0, 0)
     factionBar.contentText = factionBar:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    factionBar.contentText:SetPoint("CENTER")
+    factionBar.contentText:SetPoint("TOPLEFT")
     factionBar.contentText:SetSize(150, 20)
 
     local rValue, gValue, bValue, Text = addonMain:GetStandingAndColor(standingID)
@@ -121,7 +121,7 @@ function addonMain:drawProgressBars()
 
     ProgressBarsFrame = CreateFrame("Button", "ProgressBarsFrame", ModuleStats["Frames"]["RepBars"])
     ProgressBarsFrame:SetSize(ModuleStats["Frames"]["RepBars"]:GetWidth(), ModuleStats["Frames"]["RepBars"]:GetHeight())
-    ProgressBarsFrame:SetPoint("TOP")
+    ProgressBarsFrame:SetPoint("TOPLEFT", 0, 0)
 
     local last = nil
     for factionID, _ in pairs(AZPGURepBarsData["checkFactionIDs"]) do
