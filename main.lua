@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local RepBarsConfig = AGU.RepBarsConfig
 
-local AZPGURepBarsVersion = 11
+local AZPGURepBarsVersion = 12
 local dash = " - "
 local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
@@ -142,7 +142,7 @@ function addonMain:initializeConfig()
     AZPAddonHelper:DelayedExecution(5, function() addonMain:drawProgressBars() end)
 end
 
-function AZP.GU.OnEvent:RepBars(self, event, ...)
+function AZP.GU.OnEvent:RepBars(event, ...)
     --if event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
     if event == "UPDATE_FACTION" then
         addonMain:updateFactionCheckboxes()
