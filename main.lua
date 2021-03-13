@@ -2,7 +2,7 @@ local GlobalAddonName, AGU = ...
 
 local RepBarsConfig = AGU.RepBarsConfig
 
-local AZPGURepBarsVersion = 12
+local AZPGURepBarsVersion = 13
 local dash = " - "
 local name = "GameUtility" .. dash .. "RepBars"
 local nameFull = ("AzerPUG " .. name)
