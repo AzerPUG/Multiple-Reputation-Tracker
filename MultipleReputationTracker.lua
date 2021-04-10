@@ -10,26 +10,25 @@ if AZP.MultipleReputationTracker == nil then AZP.MultipleReputationTracker = {} 
 local RepBarsConfig = AGU.RepBarsConfig
 
 local dash = " - "
-local name = "GameUtility" .. dash .. "RepBars"
+local name = "Multiple Reputation Tracker"
 local nameFull = ("AzerPUG " .. name)
 local promo = (nameFull .. dash ..  AZPGURepBarsVersion)
 
 local addonLoaded = false
-local addonMain = LibStub("AceAddon-3.0"):NewAddon("GameUtility-RepBars", "AceConsole-3.0")
 
-local ModuleStats = AZP.GU.ModuleStats
+local ModuleStats = AZP.Core.ModuleStats        --Change to DirectCall!
 local ProgressBarsFrame
 
-function AZP.GU.VersionControl:RepBars()
+function AZP.VersionControl:MultipleReputationTracker()
     return AZPGURepBarsVersion
 end
 
-function AZP.GU.OnLoad:RepBars(self)
-    addonMain:initializeConfig()
-    addonMain:drawProgressBars()
+function AZP.OnLoad:MultipleReputationTracker(self)
+    AZP.MultipleReputationTracker:initializeConfig()
+    AZP.MultipleReputationTracker:drawProgressBars()
 
-    ModuleStats["Frames"]["RepBars"]:SetSize(400, 300)
-    addonMain:ChangeOptionsText()
+    ModuleStats["Frames"]["MultipleReputationTracker"]:SetSize(400, 300)
+    AZP.MultipleReputationTracker:ChangeOptionsText()
 
     local OptionsHeader = RepBarsSubPanel:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
     OptionsHeader:SetText(promo)
@@ -40,16 +39,16 @@ function AZP.GU.OnLoad:RepBars(self)
     local defaultScrollBehaviour = ReputationListScrollFrame:GetScript("OnVerticalScroll")
     ReputationListScrollFrame:SetScript("OnVerticalScroll", function(...)
         defaultScrollBehaviour(...)
-        addonMain:updateFactionCheckboxes()
+        AZP.MultipleReputationTracker:updateFactionCheckboxes()
     end)
     local defaultFrameShowBehaviour = ReputationFrame:GetScript("OnShow")
     ReputationFrame:SetScript("OnShow", function(...)
         defaultFrameShowBehaviour(...)
-        addonMain:updateFactionCheckboxes()
+        AZP.MultipleReputationTracker:updateFactionCheckboxes()
     end)
 end
 
-function addonMain:CreateFactionBar(standingID, min, max, current, name, factionID)
+function AZP.MultipleReputationTracker:CreateFactionBar(standingID, min, max, current, name, factionID)
     if standingID == 8 then
         local currentValue, threshold = C_Reputation.GetFactionParagonInfo(factionID)
         if currentValue ~= nil and threshold ~= nil then
@@ -83,7 +82,7 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
     factionBar.contentText:SetPoint("TOPLEFT")
     factionBar.contentText:SetSize(150, 20)
 
-    local rValue, gValue, bValue, Text = addonMain:GetStandingAndColor(standingID)
+    local rValue, gValue, bValue, Text = AZP.MultipleReputationTracker:GetStandingAndColor(standingID)
     factionBar:SetStatusBarColor(rValue, gValue, bValue)
     factionBar.contentText:SetText(Text)
 
@@ -96,7 +95,7 @@ function addonMain:CreateFactionBar(standingID, min, max, current, name, faction
     return factionBarFrame
 end
 
-function addonMain:GetStandingAndColor(standingID)
+function AZP.MultipleReputationTracker:GetStandingAndColor(standingID)
     if standingID == 1 then                             -- Hated
         return 1, 0, 0, "Hated"
     elseif standingID == 2 then                         -- Hostile
@@ -118,21 +117,21 @@ function addonMain:GetStandingAndColor(standingID)
     end
 end
 
-function addonMain:drawProgressBars()
+function AZP.MultipleReputationTracker:drawProgressBars()
     if ProgressBarsFrame ~= nil then
        ProgressBarsFrame:Hide()
        ProgressBarsFrame:SetParent(nil)
        ProgressBarsFrame = nil
     end
 
-    ProgressBarsFrame = CreateFrame("Button", "ProgressBarsFrame", ModuleStats["Frames"]["RepBars"])
-    ProgressBarsFrame:SetSize(ModuleStats["Frames"]["RepBars"]:GetWidth(), ModuleStats["Frames"]["RepBars"]:GetHeight())
+    ProgressBarsFrame = CreateFrame("Button", "ProgressBarsFrame", ModuleStats["Frames"]["MultipleReputationTracker"])
+    ProgressBarsFrame:SetSize(ModuleStats["Frames"]["MultipleReputationTracker"]:GetWidth(), ModuleStats["Frames"]["MultipleReputationTracker"]:GetHeight())
     ProgressBarsFrame:SetPoint("TOPLEFT", 0, 0)
 
     local last = nil
     for factionID, _ in pairs(AZPGURepBarsData["checkFactionIDs"]) do
         local faction, _, standingID, min, max, value, _, _, isHeader, _, _, _, _, _ = GetFactionInfoByID(factionID)
-        local cur = addonMain:CreateFactionBar(standingID, min, max, value, faction, factionID)
+        local cur = AZP.MultipleReputationTracker:CreateFactionBar(standingID, min, max, value, faction, factionID)
         if last ~= nil then
             cur:SetPoint("TOPLEFT", last, "BOTTOMLEFT")
         end
@@ -140,22 +139,22 @@ function addonMain:drawProgressBars()
     end
 end
 
-function addonMain:initializeConfig()
+function AZP.MultipleReputationTracker:initializeConfig()
     if AZPGURepBarsData == nil then
         AZPGURepBarsData = RepBarsConfig
     end
-    addonMain:updateFactionCheckboxes()
-    AZPAddonHelper:DelayedExecution(5, function() addonMain:drawProgressBars() end)
+    AZP.MultipleReputationTracker:updateFactionCheckboxes()
+    AZPAddonHelper:DelayedExecution(5, function() AZP.MultipleReputationTracker:drawProgressBars() end)
 end
 
-function AZP.GU.OnEvent:RepBars(event, ...)
+function AZP.OnEvent:MultipleReputationTracker(event, ...)
     --if event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
     if event == "UPDATE_FACTION" then
-        addonMain:updateFactionCheckboxes()
+        AZP.MultipleReputationTracker:updateFactionCheckboxes()
     end
 end
 
-function addonMain:updateFactionCheckboxes()
+function AZP.MultipleReputationTracker:updateFactionCheckboxes()
     for i=1,15 do
         local factionBarFrame = _G["ReputationBar" .. i]
         if factionBarFrame["index"] == nil then
@@ -166,17 +165,17 @@ function addonMain:updateFactionCheckboxes()
             factionBarFrame.itemCheckBox:SetSize(20, 20)
             factionBarFrame.itemCheckBox:SetPoint("RIGHT", 25, 0)
             factionBarFrame.itemCheckBox:SetScript("OnClick", function(sender)
-                local faction, standingID, min, max, value, isHeader, factionID = addonMain:getUsefulFactionInfo(sender:GetParent().index)
+                local faction, standingID, min, max, value, isHeader, factionID = AZP.MultipleReputationTracker:getUsefulFactionInfo(sender:GetParent().index)
                 if sender:GetChecked() == true then
                     AZPGURepBarsData["checkFactionIDs"][factionID] = true
                 else
                     AZPGURepBarsData["checkFactionIDs"][factionID] = nil
                 end
-                addonMain:drawProgressBars()
+                AZP.MultipleReputationTracker:drawProgressBars()
             end)
         end
 
-        local faction, standingID, min, max, value, isHeader, factionID = addonMain:getUsefulFactionInfo(factionBarFrame["index"])
+        local faction, standingID, min, max, value, isHeader, factionID = AZP.MultipleReputationTracker:getUsefulFactionInfo(factionBarFrame["index"])
         if isHeader then
             factionBarFrame.itemCheckBox:Hide()
         else
@@ -186,12 +185,12 @@ function addonMain:updateFactionCheckboxes()
     end
 end
 
-function addonMain:getUsefulFactionInfo(index)
+function AZP.MultipleReputationTracker:getUsefulFactionInfo(index)
     local faction, _, standingID, min, max, value, _, _, isHeader, _, _, _, _, factionId = GetFactionInfo(index)
     return faction, standingID, min, max, value, isHeader, factionId
 end
 
-function addonMain:ChangeOptionsText()
+function AZP.MultipleReputationTracker:ChangeOptionsText()
     RepBarsSubPanelPHTitle:Hide()
     RepBarsSubPanelPHText:Hide()
     RepBarsSubPanelPHTitle:SetParent(nil)
@@ -208,7 +207,7 @@ function addonMain:ChangeOptionsText()
     RepBarsSubPanelText:SetHeight(RepBarsSubPanel:GetHeight())
     RepBarsSubPanelText:SetPoint("TOPLEFT", 0, -50)
     RepBarsSubPanelText:SetText(
-        "AzerPUG-GameUtility-RepBars does not have options yet.\n" ..
+        "AzerPUG's Multiple Reputation Tracker does not have options yet.\n" ..
         "For feature requests visit our Discord Server!"
     )
 end
