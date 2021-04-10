@@ -1,6 +1,7 @@
-local GlobalAddonName, AGU = ...
+if AZP == nil then AZP = {} end
+if AZP.MultipleReputationTracker == nil then AZP.MultipleReputationTracker = {} end
 
-AGU.RepBarsConfig =
+AZP.MultipleReputationTracker.RepBarsConfig =
 {
     ["checkFactionIDs"] = {}
 }
