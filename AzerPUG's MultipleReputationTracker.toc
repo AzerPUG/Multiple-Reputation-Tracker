@@ -7,4 +7,5 @@
 ## SavedVariablesPerCharacter: AZPGURepBarsData
 
 dataTables.lua
+SlashCommands.lua
 MultipleReputationTracker.lua

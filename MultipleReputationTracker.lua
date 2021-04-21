@@ -190,24 +190,10 @@ function AZP.MultipleReputationTracker:getUsefulFactionInfo(index)
     return faction, standingID, min, max, value, isHeader, factionId
 end
 
-function AZP.MultipleReputationTracker:ChangeOptionsText()
-    RepBarsSubPanelPHTitle:Hide()
-    RepBarsSubPanelPHText:Hide()
-    RepBarsSubPanelPHTitle:SetParent(nil)
-    RepBarsSubPanelPHText:SetParent(nil)
-
-    local RepBarsSubPanelHeader = RepBarsSubPanel:CreateFontString("RepBarsSubPanelHeader", "ARTWORK", "GameFontNormalHuge")
-    RepBarsSubPanelHeader:SetText(promo)
-    RepBarsSubPanelHeader:SetWidth(RepBarsSubPanel:GetWidth())
-    RepBarsSubPanelHeader:SetHeight(RepBarsSubPanel:GetHeight())
-    RepBarsSubPanelHeader:SetPoint("TOP", 0, -10)
-
-    local RepBarsSubPanelText = RepBarsSubPanel:CreateFontString("RepBarsSubPanelText", "ARTWORK", "GameFontNormalHuge")
-    RepBarsSubPanelText:SetWidth(RepBarsSubPanel:GetWidth())
-    RepBarsSubPanelText:SetHeight(RepBarsSubPanel:GetHeight())
-    RepBarsSubPanelText:SetPoint("TOPLEFT", 0, -50)
-    RepBarsSubPanelText:SetText(
-        "AzerPUG's Multiple Reputation Tracker does not have options yet.\n" ..
-        "For feature requests visit our Discord Server!"
-    )
+AZP.SlashCommands["MRT"] = function()
+    if MultipleReputationTrackerSelfFrame ~= nil then MultipleReputationTrackerSelfFrame:Show() end
 end
+
+AZP.SlashCommands["mrt"] = AZP.SlashCommands["MRT"]
+AZP.SlashCommands["rep"] = AZP.SlashCommands["MRT"]
+AZP.SlashCommands["multiple reputation tracker"] = AZP.SlashCommands["MRT"]
