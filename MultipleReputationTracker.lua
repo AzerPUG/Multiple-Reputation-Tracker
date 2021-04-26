@@ -1,40 +1,21 @@
 if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
-if AZP.OnLoad == nil then AZP.OnLoad = {} end
-if AZP.OnEvent == nil then AZP.OnEvent = {} end
-if AZP.OnEvent == nil then AZP.OnEvent = {} end
 
-AZP.VersionControl.MultipleReputationTracker = 13
+AZP.VersionControl["MultipleReputationTracker"] = 13
 if AZP.MultipleReputationTracker == nil then AZP.MultipleReputationTracker = {} end
 
 local RepBarsConfig = AGU.RepBarsConfig
 
-local dash = " - "
-local name = "Multiple Reputation Tracker"
-local nameFull = ("AzerPUG " .. name)
-local promo = (nameFull .. dash ..  AZPGURepBarsVersion)
-
 local addonLoaded = false
 
-local ModuleStats = AZP.Core.ModuleStats        --Change to DirectCall!
 local ProgressBarsFrame
-
-function AZP.VersionControl:MultipleReputationTracker()
-    return AZPGURepBarsVersion
-end
 
 function AZP.OnLoad:MultipleReputationTracker(self)
     AZP.MultipleReputationTracker:initializeConfig()
     AZP.MultipleReputationTracker:drawProgressBars()
 
-    ModuleStats["Frames"]["MultipleReputationTracker"]:SetSize(400, 300)
+    AZP.Core.AddOns["Frames"]["MultipleReputationTracker"]:SetSize(400, 300)
     AZP.MultipleReputationTracker:ChangeOptionsText()
-
-    local OptionsHeader = RepBarsSubPanel:CreateFontString("OptionsHeader", "ARTWORK", "GameFontNormalHuge")
-    OptionsHeader:SetText(promo)
-    OptionsHeader:SetWidth(RepBarsSubPanel:GetWidth())
-    OptionsHeader:SetHeight(RepBarsSubPanel:GetHeight())
-    OptionsHeader:SetPoint("TOP", 0, -10)
 
     local defaultScrollBehaviour = ReputationListScrollFrame:GetScript("OnVerticalScroll")
     ReputationListScrollFrame:SetScript("OnVerticalScroll", function(...)
@@ -124,8 +105,8 @@ function AZP.MultipleReputationTracker:drawProgressBars()
        ProgressBarsFrame = nil
     end
 
-    ProgressBarsFrame = CreateFrame("Button", "ProgressBarsFrame", ModuleStats["Frames"]["MultipleReputationTracker"])
-    ProgressBarsFrame:SetSize(ModuleStats["Frames"]["MultipleReputationTracker"]:GetWidth(), ModuleStats["Frames"]["MultipleReputationTracker"]:GetHeight())
+    ProgressBarsFrame = CreateFrame("Button", "ProgressBarsFrame", AZP.Core.AddOns["Frames"]["MultipleReputationTracker"])
+    ProgressBarsFrame:SetSize(AZP.Core.AddOns["Frames"]["MultipleReputationTracker"]:GetWidth(), AZP.Core.AddOns["Frames"]["MultipleReputationTracker"]:GetHeight())
     ProgressBarsFrame:SetPoint("TOPLEFT", 0, 0)
 
     local last = nil
