@@ -1,7 +1,7 @@
 if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 
-AZP.VersionControl["Multiple Reputation Tracker"] = 13
+AZP.VersionControl["Multiple Reputation Tracker"] = 14
 if AZP.MultipleReputationTracker == nil then AZP.MultipleReputationTracker = {} end
 
 local EventFrame, UpdateFrame
