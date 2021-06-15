@@ -272,13 +272,33 @@ function AZP.MultipleReputationTracker:updateFactionCheckboxes()
             end)
         end
 
-        local faction, standingID, min, max, value, isHeader, factionID = AZP.MultipleReputationTracker:getUsefulFactionInfo(factionBarFrame["index"])
+        local faction, standingID, min, max, current, isHeader, factionID = AZP.MultipleReputationTracker:getUsefulFactionInfo(factionBarFrame["index"])
         if isHeader then
             factionBarFrame.itemCheckBox:Hide()
         else
             factionBarFrame.itemCheckBox:Show()
             factionBarFrame.itemCheckBox:SetChecked(AZPGURepBarsData["checkFactionIDs"][factionID])
         end
+
+        if standingID == 8 then
+            local currentValue, threshold = C_Reputation.GetFactionParagonInfo(factionID)
+            if currentValue ~= nil and threshold ~= nil then
+                current = (currentValue % 10000)
+                max = 10000
+                min = 0
+                standingID = 9
+            end
+        end
+
+        local factionBarReputationBar = _G["ReputationBar" .. i .. "ReputationBar"]
+        local rValue, gValue, bValue, Text = AZP.MultipleReputationTracker:GetStandingAndColor(standingID)
+        factionBarReputationBar:SetStatusBarColor(rValue, gValue, bValue)
+        factionBarReputationBar:SetMinMaxValues(min, max)
+        factionBarReputationBar:SetValue(current)
+
+        local factionBarReputationBarText= _G["ReputationBar" .. i .. "ReputationBarFactionStanding"]
+        factionBarReputationBarText:SetText(Text)
+
     end
 end
 
