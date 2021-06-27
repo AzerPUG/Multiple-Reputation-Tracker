@@ -1,8 +1,9 @@
 if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 
-AZP.VersionControl["Multiple Reputation Tracker"] = 15
+AZP.VersionControl["Multiple Reputation Tracker"] = 16
 if AZP.MultipleReputationTracker == nil then AZP.MultipleReputationTracker = {} end
+if AZP.MultipleReputationTracker.Events == nil then AZP.MultipleReputationTracker.Events = {} end
 
 local EventFrame, UpdateFrame
 
@@ -27,7 +28,7 @@ end
 function AZP.MultipleReputationTracker:OnLoadCore()
     AZP.MultipleReputationTracker:OnLoadBoth(AZP.Core.AddOns.MRT.MainFrame)
 
-    AZP.Core:RegisterEvents("VARIABLES_LOADED", function() AZP.MultipleReputationTracker:eventVariablesLoaded() end)
+    AZP.Core:RegisterEvents("VARIABLES_LOADED", function() AZP.MultipleReputationTracker.Events:VariablesLoaded() end)
     AZP.Core:RegisterEvents("UPDATE_FACTION", function() AZP.MultipleReputationTracker:updateFactionCheckboxes() end)
 
     AZP.OptionsPanels:RemovePanel("Multiple Reputation Tracker")
@@ -37,7 +38,7 @@ function AZP.MultipleReputationTracker:OnLoadCore()
 end
 
 function AZP.MultipleReputationTracker:OnLoadSelf()
-    local EventFrame = CreateFrame("Frame")
+    EventFrame = CreateFrame("Frame")
     EventFrame:SetScript("OnEvent", function(...) AZP.MultipleReputationTracker:OnEvent(...) end)
     EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
     EventFrame:RegisterEvent("CHAT_MSG_ADDON")
@@ -208,7 +209,7 @@ function AZP.MultipleReputationTracker:drawProgressBars()
     end
 end
 
-function AZP.MultipleReputationTracker:eventChatMsgAddon(...)
+function AZP.MultipleReputationTracker.Events:ChatMsgAddon(...)
     local prefix, payload, _, sender = ...
     if prefix == "AZPVERSIONS" then
         local version = AZP.MultipleReputationTracker:GetSpecificAddonVersion(payload, "MRT")
@@ -223,16 +224,16 @@ function AZP.MultipleReputationTracker:OnEvent(self, event, ...)
     if event == "UPDATE_FACTION" then
         AZP.MultipleReputationTracker:updateFactionCheckboxes()
     elseif event == "VARIABLES_LOADED" then
-        AZP.MultipleReputationTracker:eventVariablesLoaded()
-        AZP.MultipleReputationTracker:eventVariablesLoadedLocation()
+        AZP.MultipleReputationTracker.Events:VariablesLoaded()
+        AZP.MultipleReputationTracker.Events:VariablesLoadedLocation()
     elseif event == "CHAT_MSG_ADDON" then
-        AZP.MultipleReputationTracker:eventChatMsgAddon(...)
+        AZP.MultipleReputationTracker.Events:ChatMsgAddon(...)
     elseif event == "GROUP_ROSTER_UPDATE" then
         AZP.MultipleReputationTracker:ShareVersion()
     end
 end
 
-function AZP.MultipleReputationTracker:eventVariablesLoaded()
+function AZP.MultipleReputationTracker.Events:VariablesLoaded()
     if AZPGURepBarsData == nil then
         AZPGURepBarsData = AZP.MultipleReputationTracker.RepBarsConfig
     end
@@ -241,7 +242,7 @@ function AZP.MultipleReputationTracker:eventVariablesLoaded()
     AZP.MultipleReputationTracker:ShareVersion()
 end
 
-function AZP.MultipleReputationTracker:eventVariablesLoadedLocation()
+function AZP.MultipleReputationTracker.Events:VariablesLoadedLocation()
     if AZPMRTShown == false then
         MultipleReputationTrackerSelfFrame:Hide()
     end
