@@ -23,6 +23,18 @@ function AZP.MultipleReputationTracker:OnLoadBoth(frame)
     ReputationFrame:HookScript("OnShow", function(...)
         AZP.MultipleReputationTracker:updateFactionCheckboxes()
     end)
+    for i=1,15 do
+        local factionBarReputationBar = _G["ReputationBar" .. i .. "ReputationBar"]  
+        local factionBar = _G["ReputationBar" .. i]  
+        factionBar:SetScript("OnEnter", function ()
+            local factionBarReputationBarText= _G["ReputationBar" .. i .. "ReputationBarFactionStanding"]
+            factionBarReputationBarText:SetText(string.format("%d/%d", factionBarReputationBar.currentValue, factionBarReputationBar.maxValue))
+        end)
+        factionBar:SetScript("OnLeave", function ()
+            local factionBarReputationBarText= _G["ReputationBar" .. i .. "ReputationBarFactionStanding"]
+            factionBarReputationBarText:SetText(factionBarReputationBar.text)
+        end)
+    end
 end
 
 function AZP.MultipleReputationTracker:OnLoadCore()
@@ -273,13 +285,37 @@ function AZP.MultipleReputationTracker:updateFactionCheckboxes()
             end)
         end
 
-        local faction, standingID, min, max, value, isHeader, factionID = AZP.MultipleReputationTracker:getUsefulFactionInfo(factionBarFrame["index"])
+        local faction, standingID, min, max, current, isHeader, factionID = AZP.MultipleReputationTracker:getUsefulFactionInfo(factionBarFrame["index"])
         if isHeader then
             factionBarFrame.itemCheckBox:Hide()
         else
             factionBarFrame.itemCheckBox:Show()
             factionBarFrame.itemCheckBox:SetChecked(AZPGURepBarsData["checkFactionIDs"][factionID])
         end
+
+        if standingID == 8 then
+            local currentValue, threshold = C_Reputation.GetFactionParagonInfo(factionID)
+            if currentValue ~= nil and threshold ~= nil then
+                current = (currentValue % 10000)
+                max = 10000
+                min = 0
+                standingID = 9
+            end
+        end
+
+        local factionBarReputationBar = _G["ReputationBar" .. i .. "ReputationBar"]
+        local rValue, gValue, bValue, text = AZP.MultipleReputationTracker:GetStandingAndColor(standingID)
+        factionBarReputationBar:SetStatusBarColor(rValue, gValue, bValue)
+        factionBarReputationBar:SetMinMaxValues(min, max)
+        factionBarReputationBar:SetValue(current)
+        factionBarReputationBar.currentValue = current
+        factionBarReputationBar.maxValue = max
+        factionBarReputationBar.text = text
+        factionBarReputationBar.standingID = standingID
+
+        local factionBarReputationBarText= _G["ReputationBar" .. i .. "ReputationBarFactionStanding"]
+        factionBarReputationBarText:SetText(text)
+
     end
 end
 
