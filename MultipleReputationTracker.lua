@@ -17,12 +17,12 @@ local optionHeader = "|cFF00FFFFMultiple Reputation Tracker|r"
 function AZP.MultipleReputationTracker:OnLoadBoth(frame)
     MainFrame = frame
 
-    ReputationListScrollFrame:HookScript("OnVerticalScroll", function(...)
-        AZP.MultipleReputationTracker:updateFactionCheckboxes()
-    end)
-    ReputationFrame:HookScript("OnShow", function(...)
-        AZP.MultipleReputationTracker:updateFactionCheckboxes()
-    end)
+    -- ReputationListScrollFrame:HookScript("OnVerticalScroll", function(...)
+    --     AZP.MultipleReputationTracker:updateFactionCheckboxes()
+    -- end)
+    -- ReputationFrame:HookScript("OnShow", function(...)
+    --     AZP.MultipleReputationTracker:updateFactionCheckboxes()
+    -- end)
     for i=1,15 do
         local factionBarReputationBar = _G["ReputationBar" .. i .. "ReputationBar"]  
         local factionBar = _G["ReputationBar" .. i]  
@@ -41,7 +41,7 @@ function AZP.MultipleReputationTracker:OnLoadCore()
     AZP.MultipleReputationTracker:OnLoadBoth(AZP.Core.AddOns.MRT.MainFrame)
 
     AZP.Core:RegisterEvents("VARIABLES_LOADED", function() AZP.MultipleReputationTracker.Events:VariablesLoaded() end)
-    AZP.Core:RegisterEvents("UPDATE_FACTION", function() AZP.MultipleReputationTracker:updateFactionCheckboxes() end)
+    -- AZP.Core:RegisterEvents("UPDATE_FACTION", function() AZP.MultipleReputationTracker:updateFactionCheckboxes() end)
 
     AZP.OptionsPanels:RemovePanel("Multiple Reputation Tracker")
     AZP.OptionsPanels:Generic("Multiple Reputation Tracker", optionHeader, function(frame)
@@ -55,7 +55,8 @@ function AZP.MultipleReputationTracker:OnLoadSelf()
     EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
     EventFrame:RegisterEvent("CHAT_MSG_ADDON")
     EventFrame:RegisterEvent("VARIABLES_LOADED")
-    EventFrame:RegisterEvent("UPDATE_FACTION")
+    -- EventFrame:RegisterEvent("UPDATE_FACTION")
+    -- EventFrame:RegisterEvent("QUEST_LOG_UPDATE")
 
     AZPMRTSelfOptionPanel = CreateFrame("FRAME", nil)
     AZPMRTSelfOptionPanel.name = optionHeader
@@ -130,7 +131,12 @@ function AZP.MultipleReputationTracker:CreateSelfMainFrame()
 end
 
 function AZP.MultipleReputationTracker:CreateFactionBar(standingID, min, max, current, name, factionID)
-    if standingID == 8 then
+    local factionInfo = AZP.MultipleReputationTracker.Factions[factionID]
+    if factionInfo ~= nil then
+        standingID = standingID + factionInfo.OffSet
+    end
+
+    if standingID == 8 and C_Reputation.IsFactionParagon(factionID) == true then
         local currentValue, threshold = C_Reputation.GetFactionParagonInfo(factionID)
         if currentValue ~= nil and threshold ~= nil then
             current = (currentValue % 10000)
@@ -162,8 +168,9 @@ function AZP.MultipleReputationTracker:CreateFactionBar(standingID, min, max, cu
     factionBar.contentText = factionBar:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     factionBar.contentText:SetPoint("TOPLEFT")
     factionBar.contentText:SetSize(150, 20)
+    
 
-    local rValue, gValue, bValue, Text = AZP.MultipleReputationTracker:GetStandingAndColor(standingID)
+    local rValue, gValue, bValue, Text = AZP.MultipleReputationTracker:GetStandingAndColor(standingID, factionInfo)
     factionBar:SetStatusBarColor(rValue, gValue, bValue)
     factionBar.contentText:SetText(Text)
 
@@ -176,25 +183,42 @@ function AZP.MultipleReputationTracker:CreateFactionBar(standingID, min, max, cu
     return factionBarFrame
 end
 
-function AZP.MultipleReputationTracker:GetStandingAndColor(standingID)
+function AZP.MultipleReputationTracker:GetStandingAndColor(standingID, Info)
+    if Info == nil then
+        local r, g, b = AZP.MultipleReputationTracker:GetStandingColor(standingID)
+        local text = AZP.MultipleReputationTracker.StandardNames[standingID].Name
+        return r, g, b, text
+    elseif Info.Type == nil then
+        local r, g, b = AZP.MultipleReputationTracker:GetStandingColor(standingID)
+        local text = AZP.MultipleReputationTracker.StandardNames[standingID].Name
+        return r, g, b, text
+    else
+        local r, g, b = AZP.MultipleReputationTracker:GetStandingColor(standingID)
+        local type = AZP.MultipleReputationTracker.ReputationTypes[Info.Type]
+        local text = type[standingID].Name
+        return  r, g, b, text
+    end
+end
+
+function AZP.MultipleReputationTracker:GetStandingColor(standingID)
     if standingID == 1 then                             -- Hated
-        return 1, 0, 0, "Hated"
+        return 1, 0, 0
     elseif standingID == 2 then                         -- Hostile
-        return 1, 0.25, 0, "Hostile"
+        return 1, 0.25, 0
     elseif standingID == 3 then                         -- Unfriendly
-        return 1, 0.5, 0, "Unfriendly"
+        return 1, 0.5, 0
     elseif standingID == 4 then                         -- Neutral
-        return 1, 0.75, 0, "Neutral"
+        return 1, 0.75, 0
     elseif standingID == 5 then                         -- Friendly
-        return 0, 0.4, 0, "Friendly"
+        return 0, 0.4, 0
     elseif standingID == 6 then                         -- Honored
-        return 0, 0.6, 0, "Honored"
+        return 0, 0.6, 0
     elseif standingID == 7 then                         -- Revered
-        return 0, 0.8, 0, "Revered"
+        return 0, 0.8, 0
     elseif standingID == 8 then                         -- Exalted
-        return 0, 1, 0, "Exalted"
+        return 0, 1, 0
     elseif standingID == 9 then                         -- Paragon
-        return 0, 1, 1, "Paragon"
+        return 0, 1, 1
     end
 end
 
@@ -233,9 +257,10 @@ end
 
 function AZP.MultipleReputationTracker:OnEvent(self, event, ...)
     --if event == "UPDATE_FACTION" or event == "LFG_BONUS_FACTION_ID_UPDATED" then
-    if event == "UPDATE_FACTION" then
-        AZP.MultipleReputationTracker:updateFactionCheckboxes()
-    elseif event == "VARIABLES_LOADED" then
+    -- if event == "UPDATE_FACTION" or event == "QUEST_LOG_UPDATE" then
+    --     AZP.MultipleReputationTracker:updateFactionCheckboxes()
+    -- else
+    if event == "VARIABLES_LOADED" then
         AZP.MultipleReputationTracker.Events:VariablesLoaded()
         AZP.MultipleReputationTracker.Events:VariablesLoadedLocation()
     elseif event == "CHAT_MSG_ADDON" then
@@ -293,7 +318,12 @@ function AZP.MultipleReputationTracker:updateFactionCheckboxes()
             factionBarFrame.itemCheckBox:SetChecked(AZPGURepBarsData["checkFactionIDs"][factionID])
         end
 
-        if standingID == 8 then
+        local factionInfo = AZP.MultipleReputationTracker.Factions[factionID]
+        if factionInfo ~= nil then
+            standingID = standingID + factionInfo.OffSet
+        end
+
+        if standingID == 8 and C_Reputation.IsFactionParagon(factionID) == true then
             local currentValue, threshold = C_Reputation.GetFactionParagonInfo(factionID)
             if currentValue ~= nil and threshold ~= nil then
                 current = (currentValue % 10000)
@@ -304,7 +334,8 @@ function AZP.MultipleReputationTracker:updateFactionCheckboxes()
         end
 
         local factionBarReputationBar = _G["ReputationBar" .. i .. "ReputationBar"]
-        local rValue, gValue, bValue, text = AZP.MultipleReputationTracker:GetStandingAndColor(standingID)
+        local rValue, gValue, bValue, text = AZP.MultipleReputationTracker:GetStandingAndColor(standingID, factionInfo)
+
         factionBarReputationBar:SetStatusBarColor(rValue, gValue, bValue)
         factionBarReputationBar:SetMinMaxValues(min, max)
         factionBarReputationBar:SetValue(current)
@@ -317,6 +348,12 @@ function AZP.MultipleReputationTracker:updateFactionCheckboxes()
         factionBarReputationBarText:SetText(text)
 
     end
+end
+
+local OldReputationFrame_Update = ReputationFrame_Update
+function ReputationFrame_Update()
+    OldReputationFrame_Update()
+    AZP.MultipleReputationTracker:updateFactionCheckboxes()
 end
 
 function AZP.MultipleReputationTracker:ShareVersion()
