@@ -6,8 +6,6 @@ AZP.MultipleReputationTracker.RepBarsConfig =
     ["checkFactionIDs"] = {}
 }
 
-
-
 AZP.MultipleReputationTracker.StandardNames =
 {
     [1] = { Name =      "Hated",},
@@ -101,3 +99,55 @@ AZP.MultipleReputationTracker.Factions =
     -- Warlords of Draenor
     [0] = {Name =       "Council of Exarchs", Paragon = false, OffSet = 0,},
 }
+
+--[[
+
+        Factions and Reputations.
+
+        Ve'Nari
+            -   Dubious         -   1000
+            -   Apprehensive    -   6000
+            -   Tentative       -   7000
+            -   Ambivalent      -   7000
+            -   Cordial         -   21000
+            -   Appreciative    -   Max?
+            -   Paragon         -   10000
+
+        The Avowed
+            Normal Rep Levels, start at Friendly.
+
+        Archivist Codex
+            -   Tier 1  -   3000
+            -   Tier 2  -   4500
+            -   Tier 3  -   6500
+            -   Tier 4  -   11000
+            -   Tier 5  -   16000
+            -   Tier 6  -   Max?
+
+        Legion Fishing Reps     -   And     - Nat Pagle // Mists Anglers.
+            Akule Riverhorn, Conjurer Margoss, 7 others?
+            -   Stranger    -   8400
+            -   Pal         -   8400
+            -   Buddy       -   8400
+            -   Friend      -   8400
+            -   Good Friend -   8400
+            -   Best Friend -   Max?
+
+        Warlords Bodyguards
+            Defender Illona, Delvar Ironfist, Leorajh, Talonpriest Ishaal, Tormmok
+            -   Bodyguard           -   10000
+            -   Trusted Bodyguard   -   10000
+            -   Personal Wingman    -   10000
+
+        Mists Tillers
+            Chee Chee, Ella, Farmer Fung, Fish Fellreed, Gina Mudclaw, Haohan Mudclaw, Jogu the Drunk, Old Hillpaw, Sho, Tina Mudclaw.
+            -   Stranger        -   8400
+            -   Acquaintance    -   8400
+            -   Buddy           -   8400
+            -   Friend          -   8400
+            -   Good Friend     -   8400
+            -   Best Friend     -   Max?
+
+        Bizmo's Brawlpub is weird... And confusing.
+        Maybe even broken. Probably also broken :P
+]]
